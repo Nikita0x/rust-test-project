@@ -4,16 +4,25 @@ struct Window {
     y: f32,
     width: f32,
     height: f32,
+
     title: String,
 
     is_dragging: bool,
     drag_offset_x: f32,
     drag_offset_y: f32,
+
+    is_closed: bool,
 }
+
 impl Window {
     fn draw(&mut self) {
-        draw_rectangle(self.x, self.y, self.width, self.height, PURPLE);
-        draw_rectangle(self.x, self.y, self.width, 40.0, BLUE);
+        if self.is_closed {
+            return;
+        }
+
+        draw_rectangle(self.x, self.y, self.width, self.height, PURPLE); //window
+        draw_rectangle(self.x, self.y, self.width, 40.0, BLUE); //titlebar
+        draw_rectangle(self.x + self.width - 40.0, self.y, 40.0, 40.0, RED); //close button
         draw_text(
             self.title.clone(),
             self.x + 20.0,
@@ -31,6 +40,11 @@ impl Window {
 
             self.drag_offset_x = mouse_x - self.x;
             self.drag_offset_y = mouse_y - self.y;
+        }
+
+        if self.is_mouse_over_close_button() && is_mouse_button_pressed(MouseButton::Left) {
+            self.is_closed = true;
+            println!("Window closed.")
         }
 
         if is_mouse_button_released(MouseButton::Left) {
@@ -53,6 +67,20 @@ impl Window {
             && mouse_y >= self.y
             && mouse_y <= self.y + 40.0
     }
+
+    fn is_mouse_over_close_button(&self) -> bool {
+        let (mouse_x, mouse_y) = mouse_position();
+
+        let button_x = self.x + self.width - 40.0;
+        let button_y = self.y;
+        let button_width = 40.0;
+        let button_height = 40.0;
+
+        mouse_x >= button_x
+            && mouse_x <= button_x + button_width
+            && mouse_y >= button_y
+            && mouse_y <= button_y + button_height
+    }
 }
 
 #[macroquad::main("MyGame")]
@@ -66,6 +94,7 @@ async fn main() {
         is_dragging: false,
         drag_offset_x: 0.0,
         drag_offset_y: 0.0,
+        is_closed: false,
     };
 
     loop {
