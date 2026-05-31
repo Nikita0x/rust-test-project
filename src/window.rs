@@ -29,46 +29,56 @@ impl Window {
         draw_rectangle(self.x, self.y, self.width, self.height, PURPLE); //window
         draw_rectangle(self.x, self.y, self.width, 40.0, BLUE); //titlebar
 
-        let close_button_color = if self.is_mouse_over_close_button() {
-            MAGENTA
-        } else {
-            RED
-        };
-
-        draw_rectangle(
+        let close_button = crate::ui::Button::new(
             self.x + self.width - self.button_width,
             self.y,
             self.button_width,
             self.button_height,
-            close_button_color,
-        ); //close button
-
-        let button_x = self.x + self.width - self.button_width;
-        let button_y = self.y;
-
-        let button_center_x = button_x + self.button_width / 2.0;
-        let button_center_y = button_y + self.button_height / 2.0;
-
-        draw_text(
-            self.title.clone(),
-            self.x + 20.0,
-            self.y + 20.0,
-            20.0,
-            BLACK,
+            "X".to_string(),
+            RED,
         );
 
-        let close_button_text_dimensions = measure_text("X", None, 30, 1.0);
+        close_button.draw();
 
-        draw_text(
-            "X",
-            button_center_x - close_button_text_dimensions.width / 2.0,
-            button_center_y + close_button_text_dimensions.height / 2.0,
-            30.0,
-            BLACK,
+        let expand_button = crate::ui::Button::new(
+            self.x + self.width - self.button_width * 2.0,
+            self.y,
+            self.button_width,
+            self.button_height,
+            "⛶".to_string(),
+            YELLOW,
         );
+
+        expand_button.draw();
+
+        let minimize_button = crate::ui::Button::new(
+            self.x + self.width - self.button_width * 3.0,
+            self.y,
+            self.button_width,
+            self.button_height,
+            "_".to_string(),
+            ORANGE,
+        );
+
+        minimize_button.draw();
+
+        draw_text(&self.title, self.x + 20.0, self.y + 20.0, 20.0, BLACK);
     }
 
     pub fn update(&mut self) {
+        let close_button = crate::ui::Button::new(
+            self.x + self.width - self.button_width,
+            self.y,
+            self.button_width,
+            self.button_height,
+            "X".to_string(),
+            RED,
+        );
+
+        if close_button.is_clicked() {
+            self.is_closed = true;
+        }
+
         let hovering = self.is_mouse_over_titlebar();
 
         if hovering && is_mouse_button_pressed(MouseButton::Left) {
@@ -78,11 +88,6 @@ impl Window {
 
             self.drag_offset_x = mouse_x - self.x;
             self.drag_offset_y = mouse_y - self.y;
-        }
-
-        if self.is_mouse_over_close_button() && is_mouse_button_pressed(MouseButton::Left) {
-            self.is_closed = true;
-            println!("Window closed.")
         }
 
         if is_mouse_button_released(MouseButton::Left) {
@@ -103,16 +108,5 @@ impl Window {
         let (mouse_x, mouse_y) = mouse_position();
 
         titlebar.contains(mouse_x, mouse_y)
-    }
-
-    fn is_mouse_over_close_button(&self) -> bool {
-        let (mouse_x, mouse_y) = mouse_position();
-
-        let button_x = self.x + self.width - self.button_width;
-        let button_y = self.y;
-
-        let close_button = Rect::new(button_x, button_y, self.button_width, self.button_height);
-
-        close_button.contains(mouse_x, mouse_y)
     }
 }

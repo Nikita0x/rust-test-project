@@ -3,6 +3,7 @@ mod window;
 use window::Window;
 
 mod geometry;
+mod ui;
 
 #[macroquad::main("MyGame")]
 async fn main() {
