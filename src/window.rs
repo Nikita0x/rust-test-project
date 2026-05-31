@@ -1,4 +1,5 @@
-use macroquad::prelude::*;
+use macroquad::audio::Sound;
+use macroquad::{audio, prelude::*};
 
 use crate::geometry::Rect;
 use crate::ui::Button;
@@ -16,6 +17,8 @@ pub struct Window {
     pub drag_offset_x: f32,
     pub drag_offset_y: f32,
 
+    sound: Sound,
+
     close_button: Button,
     expand_button: Button,
     minimize_button: Button,
@@ -24,7 +27,7 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(x: f32, y: f32, width: f32, height: f32, title: String) -> Self {
+    pub fn new(x: f32, y: f32, width: f32, height: f32, title: String, sound: Sound) -> Self {
         let button_width = 40.0;
         let button_height = 40.0;
 
@@ -34,6 +37,7 @@ impl Window {
             width,
             height,
             title,
+            sound,
 
             is_dragging: false,
             drag_offset_x: 0.0,
@@ -91,6 +95,7 @@ impl Window {
         self.minimize_button.update_state();
 
         if self.close_button.is_clicked() {
+            audio::play_sound_once(&self.sound);
             self.is_closed = true;
         }
 
