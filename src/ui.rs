@@ -6,6 +6,12 @@ pub struct Button {
     rect: Rect,
     text: String,
     color: Color,
+    state: ButtonState,
+}
+
+pub enum ButtonState {
+    Normal,
+    Hovered,
 }
 
 impl Button {
@@ -14,6 +20,7 @@ impl Button {
             rect: Rect::new(x, y, width, height),
             text,
             color,
+            state: ButtonState::Normal,
         }
     }
 
@@ -22,10 +29,9 @@ impl Button {
     }
 
     pub fn draw(&self) {
-        let color = if self.is_hovered() {
-            MAGENTA
-        } else {
-            self.color
+        let color = match self.state {
+            ButtonState::Normal => self.color,
+            ButtonState::Hovered => MAGENTA,
         };
 
         draw_rectangle(
@@ -52,5 +58,18 @@ impl Button {
 
     pub fn is_clicked(&self) -> bool {
         self.is_hovered() && is_mouse_button_pressed(MouseButton::Left)
+    }
+
+    pub fn update_state(&mut self) {
+        if self.is_hovered() {
+            self.state = ButtonState::Hovered;
+        } else {
+            self.state = ButtonState::Normal;
+        }
+    }
+
+    pub fn set_position(&mut self, x: f32, y: f32) {
+        self.rect.x = x;
+        self.rect.y = y;
     }
 }
