@@ -4,6 +4,7 @@ use window::Window;
 
 mod geometry;
 mod ui;
+mod utils;
 
 #[macroquad::main("MyGame")]
 async fn main() {

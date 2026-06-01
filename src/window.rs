@@ -3,6 +3,7 @@ use macroquad::{audio, prelude::*};
 
 use crate::geometry::Rect;
 use crate::ui::Button;
+use crate::utils::lerp;
 
 pub struct Window {
     old_x: f32,
@@ -20,6 +21,12 @@ pub struct Window {
     pub is_dragging: bool,
     pub drag_offset_x: f32,
     pub drag_offset_y: f32,
+
+    target_width: f32,
+    target_height: f32,
+
+    target_x: f32,
+    target_y: f32,
 
     sound: Sound,
 
@@ -53,6 +60,10 @@ impl Window {
             is_expanded,
             width,
             height,
+            target_width: width,
+            target_height: height,
+            target_x: x,
+            target_y: y,
             title,
             sound,
 
@@ -121,42 +132,32 @@ impl Window {
             self.is_expanded = !self.is_expanded;
 
             if self.is_expanded {
-                println!("Expanding...");
-
                 self.old_x = self.x;
                 self.old_y = self.y;
                 self.old_width = self.width;
                 self.old_height = self.height;
 
-                self.width = screen_width();
-                self.height = screen_height();
+                self.target_width = screen_width();
+                self.target_height = screen_height();
                 self.set_window_position(0.0, 0.0);
             } else {
                 println!("Shrinking....");
-                self.width = self.old_width;
-                self.height = self.old_height;
+                self.target_width = self.old_width;
+                self.target_height = self.old_height;
                 self.set_window_position(self.old_x, self.old_y);
             }
-
-            self.close_button
-                .set_position(self.x + self.width - 40.0, self.y);
-
-            self.expand_button
-                .set_position(self.x + self.width - 80.0, self.y);
-
-            self.minimize_button
-                .set_position(self.x + self.width - 120.0, self.y);
         }
 
         if self.minimize_button.is_clicked() {
             println!("minimize btn clicked");
-            println!("screen width: {}", screen_width());
-            println!("screen height: {}", screen_height());
         }
 
         let hovering = self.is_mouse_over_titlebar();
 
-        if hovering && is_mouse_button_pressed(MouseButton::Left) {
+        if hovering
+            && is_mouse_button_pressed(MouseButton::Left)
+            && !self.expand_button.is_hovered()
+        {
             let (mouse_x, mouse_y) = mouse_position();
 
             self.is_dragging = true;
@@ -175,15 +176,21 @@ impl Window {
             self.x = mouse_x - self.drag_offset_x;
             self.y = mouse_y - self.drag_offset_y;
 
-            self.close_button
-                .set_position(self.x + self.width - 40.0, self.y);
-
-            self.expand_button
-                .set_position(self.x + self.width - 80.0, self.y);
-
-            self.minimize_button
-                .set_position(self.x + self.width - 120.0, self.y);
+            self.target_x = self.x;
+            self.target_y = self.y;
         }
+
+        let t = 0.1;
+
+        self.width = lerp(self.width, self.target_width, t);
+
+        self.height = lerp(self.height, self.target_height, t);
+
+        self.x = lerp(self.x, self.target_x, t);
+
+        self.y = lerp(self.y, self.target_y, t);
+
+        self.update_buttons_position();
     }
 
     fn is_mouse_over_titlebar(&self) -> bool {
@@ -195,7 +202,18 @@ impl Window {
     }
 
     fn set_window_position(&mut self, x: f32, y: f32) {
-        self.x = x;
-        self.y = y;
+        self.target_x = x;
+        self.target_y = y;
+    }
+
+    fn update_buttons_position(&mut self) {
+        self.close_button
+            .set_position(self.x + self.width - 40.0, self.y);
+
+        self.expand_button
+            .set_position(self.x + self.width - 80.0, self.y);
+
+        self.minimize_button
+            .set_position(self.x + self.width - 120.0, self.y);
     }
 }
