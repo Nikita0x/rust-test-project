@@ -6,27 +6,15 @@ use crate::ui::Button;
 use crate::utils::lerp;
 
 pub struct Window {
-    old_x: f32,
-    old_y: f32,
-    pub x: f32,
-    pub y: f32,
-
-    old_width: f32,
-    old_height: f32,
-    pub width: f32,
-    pub height: f32,
+    rect: Rect,
+    target_rect: Rect,
+    old_rect: Rect,
 
     pub title: String,
 
-    pub is_dragging: bool,
-    pub drag_offset_x: f32,
-    pub drag_offset_y: f32,
-
-    target_width: f32,
-    target_height: f32,
-
-    target_x: f32,
-    target_y: f32,
+    is_dragging: bool,
+    drag_offset_x: f32,
+    drag_offset_y: f32,
 
     sound: Sound,
 
@@ -35,8 +23,7 @@ pub struct Window {
     minimize_button: Button,
 
     is_expanded: bool,
-
-    pub is_closed: bool,
+    is_closed: bool,
 }
 
 impl Window {
@@ -45,25 +32,13 @@ impl Window {
         let button_height = 40.0;
         let is_expanded = false;
 
-        let old_x = x;
-        let old_y = y;
-        let old_height = height;
-        let old_width = width;
-
         Self {
-            old_x,
-            old_y,
-            x,
-            y,
-            old_height,
-            old_width,
+            rect: Rect::new(x, y, width, height),
+            old_rect: Rect::new(x, y, width, height),
+            target_rect: Rect::new(x, y, width, height),
+
             is_expanded,
-            width,
-            height,
-            target_width: width,
-            target_height: height,
-            target_x: x,
-            target_y: y,
+
             title,
             sound,
 
@@ -107,14 +82,27 @@ impl Window {
             return;
         }
 
-        draw_rectangle(self.x, self.y, self.width, self.height, PURPLE);
-        draw_rectangle(self.x, self.y, self.width, 40.0, BLUE);
+        let content_area = draw_rectangle(
+            self.rect.x,
+            self.rect.y,
+            self.rect.width,
+            self.rect.height,
+            PURPLE,
+        );
+
+        let titlebar = draw_rectangle(self.rect.x, self.rect.y, self.rect.width, 40.0, BLUE);
 
         self.close_button.draw();
         self.expand_button.draw();
         self.minimize_button.draw();
 
-        draw_text(&self.title, self.x + 20.0, self.y + 20.0, 20.0, BLACK);
+        let title = draw_text(
+            &self.title,
+            self.rect.x + 20.0,
+            self.rect.y + 20.0,
+            20.0,
+            BLACK,
+        );
     }
 
     pub fn update(&mut self) {
@@ -122,36 +110,75 @@ impl Window {
         self.expand_button.update_state();
         self.minimize_button.update_state();
 
-        if self.close_button.is_clicked() {
-            audio::play_sound_once(&self.sound);
-            self.is_closed = true;
-        }
+        self.handle_minimize();
+        self.handle_expand();
+        self.handle_close();
+        self.handle_drag();
 
+        self.animate();
+    }
+
+    fn is_mouse_over_titlebar(&self) -> bool {
+        let titlebar = Rect::new(self.rect.x, self.rect.y, self.rect.width, 40.0);
+
+        let (mouse_x, mouse_y) = mouse_position();
+
+        titlebar.contains(mouse_x, mouse_y)
+    }
+
+    fn set_window_position(&mut self, x: f32, y: f32) {
+        self.target_rect.x = x;
+        self.target_rect.y = y;
+    }
+
+    fn update_buttons_position(&mut self) {
+        self.close_button
+            .set_position(self.rect.x + self.rect.width - 40.0, self.rect.y);
+
+        self.expand_button
+            .set_position(self.rect.x + self.rect.width - 80.0, self.rect.y);
+
+        self.minimize_button
+            .set_position(self.rect.x + self.rect.width - 120.0, self.rect.y);
+    }
+
+    fn handle_expand(&mut self) {
         if self.expand_button.is_clicked() {
             println!("Expand button clicked.");
             self.is_expanded = !self.is_expanded;
 
             if self.is_expanded {
-                self.old_x = self.x;
-                self.old_y = self.y;
-                self.old_width = self.width;
-                self.old_height = self.height;
+                println!("Expanding....");
+                self.old_rect.x = self.rect.x;
+                self.old_rect.y = self.rect.y;
+                self.old_rect.width = self.rect.width;
+                self.old_rect.height = self.rect.height;
 
-                self.target_width = screen_width();
-                self.target_height = screen_height();
+                self.target_rect.width = screen_width();
+                self.target_rect.height = screen_height();
                 self.set_window_position(0.0, 0.0);
             } else {
                 println!("Shrinking....");
-                self.target_width = self.old_width;
-                self.target_height = self.old_height;
-                self.set_window_position(self.old_x, self.old_y);
+                self.target_rect.width = self.old_rect.width;
+                self.target_rect.height = self.old_rect.height;
+                self.set_window_position(self.old_rect.x, self.old_rect.y);
             }
         }
+    }
 
+    fn handle_close(&mut self) {
+        if self.close_button.is_clicked() {
+            audio::play_sound_once(&self.sound);
+            self.is_closed = true;
+        }
+    }
+    fn handle_minimize(&mut self) {
         if self.minimize_button.is_clicked() {
             println!("minimize btn clicked");
         }
+    }
 
+    fn handle_drag(&mut self) {
         let hovering = self.is_mouse_over_titlebar();
 
         if hovering
@@ -162,8 +189,8 @@ impl Window {
 
             self.is_dragging = true;
 
-            self.drag_offset_x = mouse_x - self.x;
-            self.drag_offset_y = mouse_y - self.y;
+            self.drag_offset_x = mouse_x - self.rect.x;
+            self.drag_offset_y = mouse_y - self.rect.y;
         }
 
         if is_mouse_button_released(MouseButton::Left) {
@@ -173,47 +200,25 @@ impl Window {
         if self.is_dragging {
             let (mouse_x, mouse_y) = mouse_position();
 
-            self.x = mouse_x - self.drag_offset_x;
-            self.y = mouse_y - self.drag_offset_y;
+            self.rect.x = mouse_x - self.drag_offset_x;
+            self.rect.y = mouse_y - self.drag_offset_y;
 
-            self.target_x = self.x;
-            self.target_y = self.y;
+            self.target_rect.x = self.rect.x;
+            self.target_rect.y = self.rect.y;
         }
+    }
 
+    fn animate(&mut self) {
         let t = 0.1;
 
-        self.width = lerp(self.width, self.target_width, t);
+        self.rect.width = lerp(self.rect.width, self.target_rect.width, t);
 
-        self.height = lerp(self.height, self.target_height, t);
+        self.rect.height = lerp(self.rect.height, self.target_rect.height, t);
 
-        self.x = lerp(self.x, self.target_x, t);
+        self.rect.x = lerp(self.rect.x, self.target_rect.x, t);
 
-        self.y = lerp(self.y, self.target_y, t);
+        self.rect.y = lerp(self.rect.y, self.target_rect.y, t);
 
         self.update_buttons_position();
-    }
-
-    fn is_mouse_over_titlebar(&self) -> bool {
-        let titlebar = Rect::new(self.x, self.y, self.width, 40.0);
-
-        let (mouse_x, mouse_y) = mouse_position();
-
-        titlebar.contains(mouse_x, mouse_y)
-    }
-
-    fn set_window_position(&mut self, x: f32, y: f32) {
-        self.target_x = x;
-        self.target_y = y;
-    }
-
-    fn update_buttons_position(&mut self) {
-        self.close_button
-            .set_position(self.x + self.width - 40.0, self.y);
-
-        self.expand_button
-            .set_position(self.x + self.width - 80.0, self.y);
-
-        self.minimize_button
-            .set_position(self.x + self.width - 120.0, self.y);
     }
 }
