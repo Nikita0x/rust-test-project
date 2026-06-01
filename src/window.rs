@@ -149,10 +149,7 @@ impl Window {
 
             if self.is_expanded {
                 println!("Expanding....");
-                self.old_rect.x = self.rect.x;
-                self.old_rect.y = self.rect.y;
-                self.old_rect.width = self.rect.width;
-                self.old_rect.height = self.rect.height;
+                self.old_rect = self.rect;
 
                 self.target_rect.width = screen_width();
                 self.target_rect.height = screen_height();
