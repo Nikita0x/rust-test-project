@@ -1,4 +1,4 @@
-use macroquad::{audio, prelude::*};
+use macroquad::prelude::*;
 mod window;
 use window::Window;
 
@@ -9,7 +9,7 @@ mod utils;
 #[macroquad::main("MyGame")]
 async fn main() {
     set_pc_assets_folder("assets");
-    let sound = audio::load_sound("click.wav").await.unwrap();
+    // let sound = audio::load_sound("click.wav").await.unwrap();
 
     let mut window = Window::new(
         100.0,
@@ -17,7 +17,7 @@ async fn main() {
         400.0,
         400.0,
         String::from("Hello from window"),
-        sound,
+        // sound,
     );
 
     loop {
