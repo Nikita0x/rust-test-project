@@ -1,5 +1,4 @@
-use macroquad::audio::Sound;
-use macroquad::{audio, prelude::*};
+use macroquad::prelude::*;
 
 use crate::geometry::Rect;
 use crate::ui::Button;
@@ -191,18 +190,15 @@ impl Window {
 
     fn handle_expand(&mut self) {
         if self.expand_button.is_clicked() {
-            println!("Expand button clicked.");
             self.is_expanded = !self.is_expanded;
 
             if self.is_expanded {
-                println!("Expanding....");
                 self.old_rect = self.rect;
 
                 self.target_rect.width = screen_width();
                 self.target_rect.height = screen_height();
                 self.set_window_position(0.0, 0.0);
             } else {
-                println!("Shrinking....");
                 self.target_rect.width = self.old_rect.width;
                 self.target_rect.height = self.old_rect.height;
                 self.set_window_position(self.old_rect.x, self.old_rect.y);
@@ -212,14 +208,12 @@ impl Window {
 
     fn handle_close(&mut self) {
         if self.close_button.is_clicked() {
-            audio::play_sound_once(&self.sound);
+            // audio::play_sound_once(&self.sound);
             self.is_closed = true;
         }
     }
     fn handle_minimize(&mut self) {
-        if self.minimize_button.is_clicked() {
-            println!("minimize btn clicked");
-        }
+        if self.minimize_button.is_clicked() {}
     }
 
     fn handle_drag(&mut self) {
@@ -252,7 +246,6 @@ impl Window {
 
                 match zone {
                     DockZone::Left => {
-                        println!("DOCKING LEFT");
                         self.target_rect.x = 0.0;
                         self.target_rect.y = 0.0;
                         self.target_rect.width = screen_width() / 2.0;
@@ -260,7 +253,6 @@ impl Window {
                         return;
                     }
                     DockZone::Right => {
-                        println!("DOCKING RIGHT");
                         self.target_rect.x = screen_width() / 2.0;
                         self.target_rect.y = 0.0;
                         self.target_rect.width = screen_width() / 2.0;
@@ -268,7 +260,6 @@ impl Window {
                         return;
                     }
                     DockZone::Top => {
-                        println!("DOCKING TOP");
                         self.target_rect.x = 0.0;
                         self.target_rect.y = 0.0;
                         self.target_rect.width = screen_width();
@@ -276,7 +267,6 @@ impl Window {
                         return;
                     }
                     DockZone::Bottom => {
-                        println!("DOCKING BOTTOM");
                         self.target_rect.x = 0.0;
                         self.target_rect.y = screen_height() / 2.0;
                         self.target_rect.width = screen_width();
@@ -284,7 +274,6 @@ impl Window {
                         return;
                     }
                     DockZone::TopLeft => {
-                        println!("DOCKING TOP LEFT");
                         self.target_rect.x = 0.0;
                         self.target_rect.y = 0.0;
                         self.target_rect.width = screen_width() / 2.0;
@@ -292,7 +281,6 @@ impl Window {
                         return;
                     }
                     DockZone::TopRight => {
-                        println!("DOCKING TOP RIGHT");
                         self.target_rect.x = screen_width() / 2.0;
                         self.target_rect.y = 0.0;
                         self.target_rect.width = screen_width() / 2.0;
@@ -300,7 +288,6 @@ impl Window {
                         return;
                     }
                     DockZone::BottomLeft => {
-                        println!("DOCKING BOTTOM LEFT");
                         self.target_rect.x = 0.0;
                         self.target_rect.y = screen_height() / 2.0;
                         self.target_rect.width = screen_width() / 2.0;
@@ -308,7 +295,6 @@ impl Window {
                         return;
                     }
                     DockZone::BottomRight => {
-                        println!("DOCKING BOTTOM RIGHT");
                         self.target_rect.x = screen_width() / 2.0;
                         self.target_rect.y = screen_height() / 2.0;
                         self.target_rect.width = screen_width() / 2.0;
