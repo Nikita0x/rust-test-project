@@ -28,8 +28,7 @@ pub struct Window {
     drag_offset_x: f32,
     drag_offset_y: f32,
 
-    sound: Sound,
-
+    // sound: Sound,
     close_button: Button,
     expand_button: Button,
     minimize_button: Button,
@@ -41,7 +40,7 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(x: f32, y: f32, width: f32, height: f32, title: String, sound: Sound) -> Self {
+    pub fn new(x: f32, y: f32, width: f32, height: f32, title: String) -> Self {
         let button_width = 40.0;
         let button_height = 40.0;
         let is_expanded = false;
@@ -56,8 +55,7 @@ impl Window {
             is_docked,
 
             title,
-            sound,
-
+            // sound,
             is_dragging: false,
             drag_offset_x: 0.0,
             drag_offset_y: 0.0,
