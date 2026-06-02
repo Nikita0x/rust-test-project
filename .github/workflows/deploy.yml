@@ -29,7 +29,7 @@ jobs:
         run: |
           mkdir site
           cp index.html site/
-          cp target/wasm32-unknown-unknown/release/rust-test-project.wasm site/
+          cp target/wasm32-unknown-unknown/release/rust-test-project.wasm
 
       - uses: actions/upload-pages-artifact@v3
         with:
