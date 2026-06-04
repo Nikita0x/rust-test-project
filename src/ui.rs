@@ -3,7 +3,8 @@ use macroquad::prelude::*;
 use crate::geometry::Rect;
 
 pub struct Button {
-    rect: Rect,
+    pub rect: Rect,
+    pub is_visible: bool,
     text: String,
     color: Color,
     state: ButtonState,
@@ -17,6 +18,7 @@ pub enum ButtonState {
 impl Button {
     pub fn new(x: f32, y: f32, width: f32, height: f32, text: String, color: Color) -> Self {
         Self {
+            is_visible: true,
             rect: Rect::new(x, y, width, height),
             text,
             color,
@@ -29,6 +31,10 @@ impl Button {
     }
 
     pub fn draw(&self) {
+        if !self.is_visible {
+            return;
+        }
+
         let color = match self.state {
             ButtonState::Normal => self.color,
             ButtonState::Hovered => MAGENTA,
@@ -51,6 +57,10 @@ impl Button {
     }
 
     pub fn is_hovered(&self) -> bool {
+        if !self.is_visible {
+            return false;
+        }
+
         let (mouse_x, mouse_y) = mouse_position();
 
         self.contains(mouse_x, mouse_y)
@@ -71,5 +81,13 @@ impl Button {
     pub fn set_position(&mut self, x: f32, y: f32) {
         self.rect.x = x;
         self.rect.y = y;
+    }
+
+    pub fn set_width(&mut self, width: f32) {
+        self.rect.width = width;
+    }
+
+    pub fn set_height(&mut self, height: f32) {
+        self.rect.height = height;
     }
 }
