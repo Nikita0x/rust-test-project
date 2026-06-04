@@ -10,6 +10,9 @@ mod utils;
 async fn main() {
     set_pc_assets_folder("assets");
     // let sound = audio::load_sound("click.wav").await.unwrap();
+    let cat_texture = load_texture("cat.png")
+        .await
+        .expect("Error loading texture.");
 
     let mut window = Window::new(
         100.0,
@@ -17,7 +20,7 @@ async fn main() {
         400.0,
         400.0,
         String::from("Hello from window"),
-        // sound,
+        cat_texture, // sound,
     );
 
     loop {

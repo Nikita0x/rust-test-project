@@ -8,6 +8,7 @@ pub struct Button {
     text: String,
     color: Color,
     state: ButtonState,
+    pub texture: Option<Texture2D>,
 }
 
 pub enum ButtonState {
@@ -16,13 +17,22 @@ pub enum ButtonState {
 }
 
 impl Button {
-    pub fn new(x: f32, y: f32, width: f32, height: f32, text: String, color: Color) -> Self {
+    pub fn new(
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        text: String,
+        color: Color,
+        texture: Option<Texture2D>,
+    ) -> Self {
         Self {
             is_visible: true,
             rect: Rect::new(x, y, width, height),
             text,
             color,
             state: ButtonState::Normal,
+            texture,
         }
     }
 
@@ -40,13 +50,41 @@ impl Button {
             ButtonState::Hovered => MAGENTA,
         };
 
-        draw_rectangle(
-            self.rect.x,
-            self.rect.y,
-            self.rect.width,
-            self.rect.height,
-            color,
-        );
+        match &self.texture {
+            Some(texture) => {
+                draw_texture_ex(
+                    texture,
+                    self.rect.x,
+                    self.rect.y,
+                    color,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(self.rect.width, self.rect.height)),
+                        source: None,
+                        rotation: 0.0,
+                        flip_x: false,
+                        flip_y: false,
+                        pivot: None,
+                    },
+                );
+            }
+            None => {
+                draw_rectangle(
+                    self.rect.x,
+                    self.rect.y,
+                    self.rect.width,
+                    self.rect.height,
+                    color,
+                );
+            }
+        }
+
+        // draw_rectangle(
+        //     self.rect.x,
+        //     self.rect.y,
+        //     self.rect.width,
+        //     self.rect.height,
+        //     color,
+        // );
 
         let text_dimensions = measure_text(&self.text, None, 30, 1.0);
 

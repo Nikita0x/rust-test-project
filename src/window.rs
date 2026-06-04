@@ -47,10 +47,19 @@ pub struct Window {
     is_docked: bool,
     is_closed: bool,
     preview_alpha: f32,
+
+    cat_texture: Texture2D,
 }
 
 impl Window {
-    pub fn new(x: f32, y: f32, width: f32, height: f32, title: String) -> Self {
+    pub fn new(
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        title: String,
+        cat_texture: Texture2D,
+    ) -> Self {
         let button_width = 40.0;
         let button_height = 40.0;
         let is_expanded = false;
@@ -60,7 +69,7 @@ impl Window {
             rect: Rect::new(x, y, width, height),
             old_rect: Rect::new(x, y, width, height),
             target_rect: Rect::new(x, y, width, height),
-
+            cat_texture: cat_texture.clone(),
             is_expanded,
             is_docked,
 
@@ -81,6 +90,7 @@ impl Window {
                 button_height,
                 "X".to_string(),
                 RED,
+                None,
             ),
 
             expand_button: Button::new(
@@ -90,6 +100,7 @@ impl Window {
                 button_height,
                 "⛶".to_string(),
                 YELLOW,
+                None,
             ),
 
             minimize_button: Button::new(
@@ -99,9 +110,18 @@ impl Window {
                 button_height,
                 "_".to_string(),
                 ORANGE,
+                Some(cat_texture),
             ),
-            content_area: Button::new(x, y + 40.0, width, height - 40.0, "".to_string(), WHITE),
-            title_bar: Button::new(x, y, width, 40.0, "Main window".to_string(), BLUE),
+            content_area: Button::new(
+                x,
+                y + 40.0,
+                width,
+                height - 40.0,
+                "".to_string(),
+                WHITE,
+                None,
+            ),
+            title_bar: Button::new(x, y, width, 40.0, "Main window".to_string(), BLUE, None),
             resize_corner: Button::new(
                 screen_width(),
                 screen_height(),
@@ -109,6 +129,7 @@ impl Window {
                 13.0,
                 "".to_string(),
                 BLANK,
+                None,
             ),
 
             is_closed: false,
@@ -128,6 +149,8 @@ impl Window {
         self.minimize_button.draw();
 
         self.resize_corner.draw();
+
+        // draw_texture(&self.cat_texture, 0.0, 0.0, WHITE);
     }
 
     pub fn update(&mut self) {
