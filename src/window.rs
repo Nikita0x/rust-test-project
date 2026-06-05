@@ -159,9 +159,9 @@ impl Window {
         self.minimize_button.update_state();
 
         self.handle_minimize();
-        self.handle_expand();
         self.handle_close();
         self.handle_drag();
+        self.handle_expand();
         self.handle_resize();
 
         self.animate();
@@ -227,10 +227,11 @@ impl Window {
     }
 
     fn handle_expand(&mut self) {
-        if self.expand_button.is_clicked() {
+        if self.expand_button.is_clicked() || self.title_bar.is_double_clicked() {
             self.is_expanded = !self.is_expanded;
 
             if self.is_expanded {
+                self.is_dragging = false;
                 self.resize_corner.is_visible = false;
                 self.old_rect = self.rect;
 
@@ -293,6 +294,9 @@ impl Window {
     }
 
     fn handle_drag(&mut self) {
+        if self.is_expanded {
+            return;
+        }
         // 1. Start dragging logic
         if self.title_bar.is_hovered()
             && is_mouse_button_pressed(MouseButton::Left)

@@ -9,6 +9,7 @@ pub struct Button {
     color: Color,
     state: ButtonState,
     pub texture: Option<Texture2D>,
+    last_click_time: f64,
 }
 
 pub enum ButtonState {
@@ -33,6 +34,7 @@ impl Button {
             color,
             state: ButtonState::Normal,
             texture,
+            last_click_time: 0.0,
         }
     }
 
@@ -106,6 +108,19 @@ impl Button {
 
     pub fn is_clicked(&self) -> bool {
         self.is_hovered() && is_mouse_button_pressed(MouseButton::Left)
+    }
+
+    pub fn is_double_clicked(&mut self) -> bool {
+        if self.is_clicked() {
+            let current_time = get_time();
+            let diff = current_time - self.last_click_time;
+            self.last_click_time = current_time;
+
+            if diff < 0.3 {
+                return true;
+            }
+        }
+        false
     }
 
     pub fn update_state(&mut self) {
