@@ -137,7 +137,7 @@ impl Window {
         }
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&self) {
         if self.is_closed {
             return;
         }

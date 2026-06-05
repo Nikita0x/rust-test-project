@@ -14,18 +14,26 @@ async fn main() {
         .await
         .expect("Error loading texture.");
 
-    let mut window = Window::new(
-        100.0,
-        100.0,
-        400.0,
-        400.0,
-        String::from("Hello from window"),
-        cat_texture, // sound,
-    );
+    let mut windows: Vec<Window> = vec![];
 
     loop {
-        window.update();
-        window.draw();
+        if is_key_pressed(KeyCode::N) {
+            windows.push(Window::new(
+                100.0,
+                100.0,
+                400.0,
+                400.0,
+                format!("Window {}", windows.len()),
+                cat_texture.clone(),
+            ));
+        }
+        for window in windows.iter_mut() {
+            window.update();
+        }
+
+        for window in windows.iter() {
+            window.draw();
+        }
 
         next_frame().await
     }
