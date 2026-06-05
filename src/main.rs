@@ -18,21 +18,39 @@ async fn main() {
 
     loop {
         if is_key_pressed(KeyCode::N) {
+            let title = format!("Window {}", windows.len());
             windows.push(Window::new(
                 100.0,
                 100.0,
                 400.0,
                 400.0,
-                format!("Window {}", windows.len()),
+                title,
                 cat_texture.clone(),
             ));
         }
-        for window in windows.iter_mut() {
-            window.update();
+
+        let mut clicked_index = None;
+        for (i, window) in windows.iter().enumerate().rev() {
+            if window.is_clicked() {
+                clicked_index = Some(i);
+                break;
+            }
         }
 
-        for window in windows.iter() {
-            window.draw();
+        if let Some(index) = clicked_index {
+            let window = windows.remove(index);
+            windows.push(window);
+        }
+
+        let len = windows.len();
+        for (i, window) in windows.iter_mut().enumerate() {
+            let is_active = i == len - 1;
+            window.update(is_active);
+        }
+
+        for (i, window) in windows.iter().enumerate() {
+            let is_active = i == len - 1;
+            window.draw(is_active);
         }
 
         next_frame().await

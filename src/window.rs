@@ -73,6 +73,7 @@ impl Window {
             is_expanded,
             is_docked,
 
+            title_bar: Button::new(x, y, width, 40.0, title.clone(), BLUE, None),
             title,
             // sound,
             is_dragging: false,
@@ -121,7 +122,7 @@ impl Window {
                 WHITE,
                 None,
             ),
-            title_bar: Button::new(x, y, width, 40.0, "Main window".to_string(), BLUE, None),
+
             resize_corner: Button::new(
                 screen_width(),
                 screen_height(),
@@ -137,7 +138,7 @@ impl Window {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, is_active: bool) {
         if self.is_closed {
             return;
         }
@@ -150,13 +151,35 @@ impl Window {
 
         self.resize_corner.draw();
 
-        // draw_texture(&self.cat_texture, 0.0, 0.0, WHITE);
+        if !is_active {
+            draw_rectangle(
+                self.rect.x,
+                self.rect.y,
+                self.rect.width,
+                self.rect.height,
+                Color::new(0.0, 0.0, 0.0, 0.5),
+            );
+        }
+
+        draw_rectangle_lines(
+            self.rect.x,
+            self.rect.y,
+            self.rect.width,
+            self.rect.height,
+            3.0,
+            DARKGRAY,
+        );
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, is_active: bool) {
         self.close_button.update_state();
         self.expand_button.update_state();
         self.minimize_button.update_state();
+
+        if !is_active {
+            self.animate();
+            return;
+        }
 
         self.handle_minimize();
         self.handle_close();
@@ -165,6 +188,16 @@ impl Window {
         self.handle_resize();
 
         self.animate();
+    }
+
+    pub fn is_hovered(&self) -> bool {
+        let (mouse_x, mouse_y) = mouse_position();
+
+        self.rect.contains(mouse_x, mouse_y)
+    }
+
+    pub fn is_clicked(&self) -> bool {
+        self.is_hovered() && is_mouse_button_pressed(MouseButton::Left)
     }
 
     fn get_dock_zone(&self, mouse_x: f32, mouse_y: f32) -> DockZone {
