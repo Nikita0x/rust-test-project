@@ -17,6 +17,7 @@ struct ContextMenu {
     rect: Rect,
     kind: ContextMenuKind,
     is_open: bool,
+    animation_progress: f32,
 }
 
 impl ContextMenu {
@@ -25,16 +26,20 @@ impl ContextMenu {
             rect: Rect::new(x, y, width, height),
             kind,
             is_open: false,
+            animation_progress: 0.0,
         }
     }
     pub fn draw(&self) {
+        let animated_width = self.rect.width * self.animation_progress;
+        let animated_height = self.rect.height * self.animation_progress;
+
         match self.kind {
             ContextMenuKind::Desktop => {
                 draw_rectangle(
                     self.rect.x,
                     self.rect.y,
-                    self.rect.width,
-                    self.rect.height,
+                    animated_width,
+                    animated_height,
                     GREEN,
                 );
             }
@@ -42,8 +47,8 @@ impl ContextMenu {
                 draw_rectangle(
                     self.rect.x,
                     self.rect.y,
-                    self.rect.width,
-                    self.rect.height,
+                    animated_width,
+                    animated_height,
                     RED,
                 );
             }
@@ -54,6 +59,8 @@ impl ContextMenu {
         self.rect.x = x;
         self.rect.y = y;
         self.is_open = true;
+
+        self.animation_progress = 0.0;
     }
 
     pub fn contains(&self, x: f32, y: f32) -> bool {
@@ -132,6 +139,14 @@ async fn main() {
             };
 
             context_menu.open_at(mx, my);
+        }
+
+        if context_menu.is_open {
+            context_menu.animation_progress += 0.05;
+
+            if context_menu.animation_progress > 1.0 {
+                context_menu.animation_progress = 1.0;
+            }
         }
 
         if context_menu.is_open {
