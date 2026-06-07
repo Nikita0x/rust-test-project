@@ -5,7 +5,7 @@ use crate::geometry::Rect;
 pub struct Button {
     pub rect: Rect,
     pub is_visible: bool,
-    text: String,
+    pub text: String,
     color: Color,
     state: ButtonState,
     pub texture: Option<Texture2D>,
@@ -88,12 +88,18 @@ impl Button {
         //     color,
         // );
 
-        let text_dimensions = measure_text(&self.text, None, 30, 1.0);
+        // let text_dimensions = measure_text(&self.text, None, 30, 1.0);
 
-        let text_x = self.rect.x + self.rect.width / 2.0 - text_dimensions.width / 2.0;
+        // let text_x = self.rect.x + self.rect.width / 2.0 - text_dimensions.width / 2.0;
 
-        let text_y = self.rect.y + self.rect.height / 2.0 + text_dimensions.height / 2.0;
-        draw_text(&self.text, text_x, text_y, 30.0, BLACK);
+        // let text_y = self.rect.y + self.rect.height / 2.0 + text_dimensions.height / 2.0;
+        draw_text(
+            &self.text,
+            self.rect.x + 15.0,
+            self.rect.y + self.rect.height / 2.0,
+            15.0,
+            BLACK,
+        );
     }
 
     pub fn is_hovered(&self) -> bool {

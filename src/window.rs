@@ -48,7 +48,7 @@ pub struct Window {
     is_closed: bool,
     preview_alpha: f32,
 
-    cat_texture: Texture2D,
+    cat_texture: Option<Texture2D>,
 }
 
 impl Window {
@@ -58,7 +58,7 @@ impl Window {
         width: f32,
         height: f32,
         title: String,
-        cat_texture: Texture2D,
+        cat_texture: Option<Texture2D>,
     ) -> Self {
         let button_width = 40.0;
         let button_height = 40.0;
@@ -69,7 +69,8 @@ impl Window {
             rect: Rect::new(x, y, width, height),
             old_rect: Rect::new(x, y, width, height),
             target_rect: Rect::new(x, y, width, height),
-            cat_texture: cat_texture.clone(),
+            // cat_texture: cat_texture.clone(),
+            cat_texture: None,
             is_expanded,
             is_docked,
 
@@ -111,7 +112,7 @@ impl Window {
                 button_height,
                 "_".to_string(),
                 ORANGE,
-                Some(cat_texture),
+                None,
             ),
             content_area: Button::new(
                 x,
