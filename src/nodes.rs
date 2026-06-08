@@ -3,11 +3,13 @@ use macroquad::{
     shapes::{draw_rectangle, draw_rectangle_lines},
     text::draw_text,
 };
+use uuid::Uuid;
 
 use crate::{Context, geometry::Rect};
 
 #[derive(Copy, Clone)]
 pub struct Node {
+    id: Uuid,
     pub rect: Rect,
     pub is_selected: bool,
 }
@@ -15,6 +17,7 @@ pub struct Node {
 impl Node {
     pub fn new(rect: Rect) -> Self {
         Self {
+            id: Uuid::new_v4(),
             rect,
             is_selected: false,
         }
@@ -39,20 +42,28 @@ impl Node {
 
         // if debug enabled
         if context.show_debug_info {
+            // draw_text(
+            //     format!("Width: {}", self.rect.width),
+            //     self.rect.x,
+            //     self.rect.y + 20.0,
+            //     20.0,
+            //     BLACK,
+            // );
+            // draw_text(
+            //     format!("Height: {}", self.rect.height),
+            //     self.rect.x,
+            //     self.rect.y + 40.0,
+            //     20.0,
+            //     BLACK,
+            // );
             draw_text(
-                format!("Width: {}", self.rect.width),
-                self.rect.x,
-                self.rect.y + 20.0,
-                20.0,
-                BLACK,
-            );
-            draw_text(
-                format!("Height: {}", self.rect.height),
+                format!("id: {}", self.id),
                 self.rect.x,
                 self.rect.y + 40.0,
                 20.0,
                 BLACK,
             );
+
             draw_text(
                 format!("x: {}", self.rect.x),
                 self.rect.x,

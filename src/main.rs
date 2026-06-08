@@ -61,14 +61,16 @@ impl SelectionArea {
 
 #[macroquad::main("MyGame")]
 async fn main() {
-    let mut node = Node::new(Rect::new(50.0, 100.0, 100.0, 100.0));
-    let node2 = Node::new(Rect::new(200.0, 200.0, 100.0, 100.0));
     let mut context = Context {
         show_debug_info: true,
         nodes: vec![],
     };
-    context.nodes.push(node.clone());
-    context.nodes.push(node2);
+    context
+        .nodes
+        .push(Node::new(Rect::new(50.0, 100.0, 100.0, 100.0)));
+    context
+        .nodes
+        .push(Node::new(Rect::new(200.0, 200.0, 100.0, 100.0)));
     let mut selection_area = SelectionArea::new();
 
     loop {
@@ -136,14 +138,16 @@ async fn main() {
             selection_area.set_position(x, y);
             selection_area.set_dimensions(width, height);
 
-            selection_area.rect.draw(Color::new(0.0, 0.0, 255.0, 0.20));
+            if selection_area.is_drag_selection {
+                selection_area.rect.draw(Color::new(0.0, 0.0, 255.0, 0.20));
 
-            for node in &mut context.nodes {
-                if selection_area.contains_rect(&node.rect) {
-                    node.select();
-                    selection_area.found_nodes = true;
-                } else {
-                    node.deselect();
+                for node in &mut context.nodes {
+                    if selection_area.contains_rect(&node.rect) {
+                        node.select();
+                        selection_area.found_nodes = true;
+                    } else {
+                        node.deselect();
+                    }
                 }
             }
         }
@@ -151,7 +155,12 @@ async fn main() {
         if is_mouse_button_released(MouseButton::Left) {
             selection_area.enabled = false;
 
-            if !selection_area.is_drag_selection {
+            let clicked_on_node = context
+                .nodes
+                .iter()
+                .any(|node| node.rect.contains_pointer());
+
+            if !selection_area.is_drag_selection && !clicked_on_node {
                 for node in &mut context.nodes {
                     node.deselect();
                 }
@@ -162,6 +171,28 @@ async fn main() {
             for node in &mut context.nodes {
                 node.select();
             }
+        }
+
+        let mut clicked_index = None;
+
+        for (i, node) in context.nodes.iter().enumerate() {
+            if node.rect.is_clicked() {
+                clicked_index = Some(i);
+                break;
+            }
+        }
+
+        if let Some(i) = clicked_index {
+            let ctrl_pressed =
+                is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
+
+            if !ctrl_pressed {
+                for node in &mut context.nodes {
+                    node.deselect();
+                }
+            }
+
+            context.nodes[i].select();
         }
 
         for node in &context.nodes {
