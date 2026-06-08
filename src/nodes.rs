@@ -1,14 +1,15 @@
 use macroquad::{
     color::{BLACK, BLUE, Color, RED},
-    shapes::draw_rectangle,
+    shapes::{draw_rectangle, draw_rectangle_lines},
     text::draw_text,
 };
 
 use crate::{Context, geometry::Rect};
 
+#[derive(Copy, Clone)]
 pub struct Node {
     pub rect: Rect,
-    is_selected: bool,
+    pub is_selected: bool,
 }
 
 impl Node {
@@ -22,6 +23,21 @@ impl Node {
     pub fn draw(&self, context: &Context, color: Color) {
         self.rect.draw(color);
 
+        //outline when selected
+        if self.is_selected {
+            let padding = 5.0;
+
+            draw_rectangle_lines(
+                self.rect.x - padding,
+                self.rect.y - padding,
+                self.rect.width + padding * 2.0,
+                self.rect.height + padding * 2.0,
+                2.0,
+                BLUE,
+            );
+        }
+
+        // if debug enabled
         if context.show_debug_info {
             draw_text(
                 format!("Width: {}", self.rect.width),
@@ -59,5 +75,13 @@ impl Node {
                 BLACK,
             );
         }
+    }
+
+    pub fn select(&mut self) {
+        self.is_selected = true;
+    }
+
+    pub fn deselect(&mut self) {
+        self.is_selected = false;
     }
 }

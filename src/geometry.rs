@@ -3,7 +3,7 @@ use macroquad::{
     input::{is_mouse_button_pressed, mouse_position},
     shapes::draw_rectangle,
 };
-
+#[derive(Copy, Clone)]
 pub struct Rect {
     pub x: f32,
     pub y: f32,
