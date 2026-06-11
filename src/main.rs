@@ -195,6 +195,14 @@ async fn main() {
             context.nodes[i].select();
         }
 
+        for node in &mut context.nodes {
+            if node.is_selected && node.rect.is_hovered() && is_mouse_button_down(MouseButton::Left)
+            {
+                node.is_dragging = true;
+                println!("dragging");
+            }
+        }
+
         for node in &context.nodes {
             node.draw(&context, RED);
         }

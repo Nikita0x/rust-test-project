@@ -1,6 +1,6 @@
 use macroquad::{
     color::Color,
-    input::{is_mouse_button_pressed, mouse_position},
+    input::{is_mouse_button_down, is_mouse_button_pressed, mouse_position},
     shapes::draw_rectangle,
 };
 #[derive(Copy, Clone)]
@@ -53,5 +53,9 @@ impl Rect {
 
     pub fn is_clicked(&self) -> bool {
         self.is_hovered() && is_mouse_button_pressed(macroquad::input::MouseButton::Left)
+    }
+
+    pub fn is_dragging(&self) -> bool {
+        self.is_hovered() && is_mouse_button_down(macroquad::input::MouseButton::Left)
     }
 }

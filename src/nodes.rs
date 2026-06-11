@@ -12,6 +12,7 @@ pub struct Node {
     id: Uuid,
     pub rect: Rect,
     pub is_selected: bool,
+    pub is_dragging: bool,
 }
 
 impl Node {
@@ -20,6 +21,7 @@ impl Node {
             id: Uuid::new_v4(),
             rect,
             is_selected: false,
+            is_dragging: false,
         }
     }
 
